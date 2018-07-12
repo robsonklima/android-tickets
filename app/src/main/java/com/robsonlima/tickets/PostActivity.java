@@ -1,13 +1,9 @@
 package com.robsonlima.tickets;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.EditText;
 
 import com.robsonlima.tickets.API.APIClient;
 import com.robsonlima.tickets.API.APIClientInterface;
@@ -19,28 +15,39 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class PostsActivity extends AppCompatActivity {
+public class PostActivity extends AppCompatActivity {
 
+    int postId;
     APIClientInterface apiClientInterface;
-    List<Post> postList;
-    ListView listPosts;
+    EditText etTitle;
+    EditText etBody;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        setContentView(R.layout.posts_activity);
+        setContentView(R.layout.post_activity);
 
         apiClientInterface = APIClient.getClient().create(APIClientInterface.class);
-        listPosts = (ListView) findViewById(R.id.listPosts);
+        etTitle = (EditText) findViewById(R.id.etTitle);
+        etBody = (EditText) findViewById(R.id.etBody);
 
-        Call<List<Post>> call = apiClientInterface.getListPosts();
+        if (getIntent().hasExtra("postId")) {
+            postId = Integer.parseInt(getIntent().getStringExtra("postId"));
+            onLoadPost();
+        }
+    }
+
+    private void onLoadPost() {
+        Call<List<Post>> call = apiClientInterface.getPost(postId);
         call.enqueue(new Callback<List<Post>>() {
             @Override
             public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
-                postList = response.body();
-
-                onLoadListPosts();
+                if (!response.body().isEmpty()) {
+                    Post post = (Post) response.body().get(0);
+                    etTitle.setText(post.title);
+                    etBody.setText(post.body);
+                }
             }
 
             @Override
@@ -48,21 +55,6 @@ public class PostsActivity extends AppCompatActivity {
                 call.cancel();
             }
         });
-
-        AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Post post = (Post) parent.getItemAtPosition(position);
-                Intent intent = new Intent(PostsActivity.this, PostActivity.class);
-                intent.putExtra("postId", post.id.toString());
-                startActivity(intent);
-            }
-        };
-        listPosts.setOnItemClickListener(listener);
-    }
-
-    private void onLoadListPosts() {
-        ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(PostsActivity.this, android.R.layout.simple_list_item_1, postList);
-        listPosts.setAdapter(adapter);
     }
 
     @Override

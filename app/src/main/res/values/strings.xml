@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Tickets</string>
     <string name="btn_login_text">Login</string>
+    <string name="btn_submit_text">Submit</string>
     <string name="et_login_hint">Login</string>
     <string name="et_password_hint">Password</string>
+    <string name="et_title_hint">Type the title</string>
+    <string name="et_body_hint">Type the body</string>
 </resources>

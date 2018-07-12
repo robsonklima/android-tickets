@@ -19,7 +19,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".HomeActivity" />
-        <activity android:name=".PostsActivity"></activity>
+        <activity android:name=".PostsActivity" />
+        <activity android:name=".PostActivity"></activity>
     </application>
 
 </manifest>
