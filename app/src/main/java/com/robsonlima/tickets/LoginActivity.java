@@ -21,7 +21,6 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
     private void hideActionBar() {
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
