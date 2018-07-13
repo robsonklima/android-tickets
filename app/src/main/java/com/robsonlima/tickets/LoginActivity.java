@@ -34,10 +34,10 @@ public class LoginActivity extends AppCompatActivity {
             new Runnable() {
                 public void run() {
                     progress.dismiss();
-                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                    Intent intent = new Intent(LoginActivity.this, PostsActivity.class);
                     startActivity(intent);
                 }
-            }, 3000);
+            }, 1500);
     }
 
     private void hideActionBar() {

@@ -1,6 +1,8 @@
 package com.robsonlima.tickets;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -12,7 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.robsonlima.tickets.API.APIClient;
-import com.robsonlima.tickets.API.APIClientInterface;
+import com.robsonlima.tickets.interfaces.PostInterface;
 import com.robsonlima.tickets.models.Post;
 
 import java.util.List;
@@ -23,7 +25,7 @@ import retrofit2.Response;
 
 public class PostsActivity extends AppCompatActivity {
 
-    APIClientInterface apiClientInterface;
+    PostInterface postInterface;
     List<Post> postList;
     ListView listPosts;
     ProgressDialog progress;
@@ -34,20 +36,63 @@ public class PostsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.posts_activity);
 
-        apiClientInterface = APIClient.getClient().create(APIClientInterface.class);
+        postInterface = APIClient.getClient().create(PostInterface.class);
         listPosts = (ListView) findViewById(R.id.listPosts);
 
         onLoadPosts();
 
-        AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Post post = (Post) parent.getItemAtPosition(position);
+        listPosts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
+                Post post = (Post) parent.getItemAtPosition(pos);
                 Intent intent = new Intent(PostsActivity.this, PostActivity.class);
                 intent.putExtra("postId", post.id.toString());
                 startActivity(intent);
             }
-        };
-        listPosts.setOnItemClickListener(listener);
+        });
+
+        listPosts.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int pos, long id) {
+                Post post = (Post) parent.getItemAtPosition(pos);
+                deletePost(post);
+
+                return true;
+            }
+        });
+    }
+
+    private void deletePost(final Post post) {
+        new AlertDialog.Builder(this)
+            .setTitle("Confirm")
+            .setMessage("Do you really want to delete this post?")
+            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    progress = new ProgressDialog(PostsActivity.this);
+                    progress.setTitle("Loading");
+                    progress.setMessage("Wait while loading...");
+                    progress.setCancelable(false);
+                    progress.show();
+
+                    Call<Post> call = postInterface.deletePost(post.id);
+                    call.enqueue(new Callback<Post>() {
+                        @Override
+                        public void onResponse(Call<Post> call, Response<Post> response) {
+                            Snackbar.make(findViewById(R.id.postsActivity),post.title + " deleted!",
+                                    Snackbar.LENGTH_LONG).show();
+
+                            progress.dismiss();
+                        }
+
+                        @Override
+                        public void onFailure(Call<Post> call, Throwable t) {
+                            call.cancel();
+
+                            progress.dismiss();
+                        }
+                    });
+                }})
+            .setNegativeButton(android.R.string.no, null).show();
     }
 
     private void onLoadPosts() {
@@ -57,7 +102,7 @@ public class PostsActivity extends AppCompatActivity {
         progress.setCancelable(false);
         progress.show();
 
-        Call<List<Post>> call = apiClientInterface.getListPosts();
+        Call<List<Post>> call = postInterface.getListPosts();
         call.enqueue(new Callback<List<Post>>() {
             @Override
             public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
@@ -79,6 +124,11 @@ public class PostsActivity extends AppCompatActivity {
     private void onLoadListPosts() {
         ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(PostsActivity.this, android.R.layout.simple_list_item_1, postList);
         listPosts.setAdapter(adapter);
+    }
+
+    public void createPost(View view) {
+        Intent intent = new Intent(PostsActivity.this, PostActivity.class);
+        startActivity(intent);
     }
 
     @Override
