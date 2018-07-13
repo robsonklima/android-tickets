@@ -1,5 +1,6 @@
 package com.robsonlima.tickets;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +25,7 @@ public class PostsActivity extends AppCompatActivity {
     APIClientInterface apiClientInterface;
     List<Post> postList;
     ListView listPosts;
+    ProgressDialog progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,17 +36,23 @@ public class PostsActivity extends AppCompatActivity {
         apiClientInterface = APIClient.getClient().create(APIClientInterface.class);
         listPosts = (ListView) findViewById(R.id.listPosts);
 
+        progress = new ProgressDialog(this);
+        progress.setTitle("Loading");
+        progress.setMessage("Wait while loading...");
+        progress.show();
+
         Call<List<Post>> call = apiClientInterface.getListPosts();
         call.enqueue(new Callback<List<Post>>() {
             @Override
             public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
                 postList = response.body();
-
                 onLoadListPosts();
+                progress.dismiss();
             }
 
             @Override
             public void onFailure(Call<List<Post>> call, Throwable t) {
+                progress.dismiss();
                 call.cancel();
             }
         });
