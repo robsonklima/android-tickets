@@ -2,6 +2,7 @@ package com.robsonlima.tickets;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -61,8 +62,10 @@ public class PostActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<Post>> call, Throwable t) {
-                progress.dismiss();
+                Snackbar.make(findViewById(R.id.postActivity), "Error on getting data", Snackbar.LENGTH_LONG).show();
                 call.cancel();
+                progress.dismiss();
+                finish();
             }
         });
     }
