@@ -126,7 +126,7 @@ public class PostsActivity extends AppCompatActivity {
         listPosts.setAdapter(adapter);
     }
 
-    public void createPost(View view) {
+    public void onCreatePost(View view) {
         Intent intent = new Intent(PostsActivity.this, PostActivity.class);
         startActivity(intent);
     }
