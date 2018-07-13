@@ -23,8 +23,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PostsActivity" />
-        <activity android:name=".PostActivity" />
+        <activity
+            android:name=".PostsActivity"
+            android:label="@string/title_activity_posts" />
+        <activity
+            android:name=".PostActivity"
+            android:label="@string/title_activity_post" />
         <activity
             android:name=".HomeActivity"
             android:label="@string/title_activity_home"

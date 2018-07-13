@@ -36,9 +36,24 @@ public class PostsActivity extends AppCompatActivity {
         apiClientInterface = APIClient.getClient().create(APIClientInterface.class);
         listPosts = (ListView) findViewById(R.id.listPosts);
 
+        onLoadPosts();
+
+        AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Post post = (Post) parent.getItemAtPosition(position);
+                Intent intent = new Intent(PostsActivity.this, PostActivity.class);
+                intent.putExtra("postId", post.id.toString());
+                startActivity(intent);
+            }
+        };
+        listPosts.setOnItemClickListener(listener);
+    }
+
+    private void onLoadPosts() {
         progress = new ProgressDialog(this);
         progress.setTitle("Loading");
         progress.setMessage("Wait while loading...");
+        progress.setCancelable(false);
         progress.show();
 
         Call<List<Post>> call = apiClientInterface.getListPosts();
@@ -56,16 +71,6 @@ public class PostsActivity extends AppCompatActivity {
                 call.cancel();
             }
         });
-
-        AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Post post = (Post) parent.getItemAtPosition(position);
-                Intent intent = new Intent(PostsActivity.this, PostActivity.class);
-                intent.putExtra("postId", post.id.toString());
-                startActivity(intent);
-            }
-        };
-        listPosts.setOnItemClickListener(listener);
     }
 
     private void onLoadListPosts() {
@@ -75,10 +80,8 @@ public class PostsActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            finish();
         }
 
         return super.onOptionsItemSelected(item);
